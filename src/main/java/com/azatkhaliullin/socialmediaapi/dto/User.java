@@ -8,12 +8,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -33,7 +35,7 @@ public class User {
     private Set<User> friends;
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<User> subscribers;
-    @ManyToMany
-    private Set<User> friendshipRequestsSent;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private Set<User> subscriptions;
 
 }
