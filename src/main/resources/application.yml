@@ -4,7 +4,7 @@ spring:
     username: postgres
     password: postgrespw
   jpa:
-    hibernate.ddl-auto: create-drop
+    hibernate.ddl-auto: update
 jwt:
-  secret: eyJhbGciOiJIUzUxMiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJTb2NpYWxNZWRpYUFwaSIsIlVzZXJuYW1lIjoiVXNlciIsImV4cCI6MTY4NTcwMDc1OCwiaWF0IjoxNjg1NzAwNzU4fQ.0fbNbWfbpebV0dKnBWmknMldFvPZvSLxhi1eI2rvvHXFhnSQohtWW5bMjjatDVQ19gTHfYX3kvOX6vd947DYaA
+  secret: eyJhbGciOiJIUzUxMiJ9eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJTb2NpYWxNZWRpYUFwaSIsIlVzZXJuYW1lIjoiVXNlciIsImV4cCI6MTY4NTcwMDc1OCwiaWF0IjoxNjg1NzAwNzU4fQ0fbNbWfbpebV0dKnBWmknMldFvPZvSLxhi1eI2rvvHXFhnSQohtWW5bMjjatDVQ19gTHfYX3kvOX6vd947DYaA
   expiration: 86400000

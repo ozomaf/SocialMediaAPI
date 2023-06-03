@@ -9,31 +9,44 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue
     private Long id;
-    @NotNull
+
+    @NotBlank
     @Column(unique = true)
     private String username;
-    @NotNull
+
+    @Email
+    @NotBlank
     @Column(unique = true)
     private String email;
-    @NotNull
+
+    @NotBlank
     private String password;
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Post> posts;
     @ManyToMany(cascade = CascadeType.ALL)
@@ -43,10 +56,9 @@ public class User implements UserDetails {
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<User> subscriptions;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -68,4 +80,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
