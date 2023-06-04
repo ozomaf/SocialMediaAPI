@@ -14,7 +14,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Slf4j
-public class JwtUtils {
+public class JwtService {
 
     @Value("${jwt.secret}")
     private String jwtSecret;

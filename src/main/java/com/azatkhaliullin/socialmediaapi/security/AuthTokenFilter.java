@@ -1,7 +1,7 @@
 package com.azatkhaliullin.socialmediaapi.security;
 
 import com.azatkhaliullin.socialmediaapi.dto.User;
-import com.azatkhaliullin.socialmediaapi.service.JwtUtils;
+import com.azatkhaliullin.socialmediaapi.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.io.IOException;
 @AllArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -32,10 +32,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(7);
-        String username = jwtUtils.extractUsername(token);
+        String username = jwtService.extractUsername(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = (User) this.userDetailsService.loadUserByUsername(username);
-            if (jwtUtils.isTokenValid(token, user)) {
+            if (jwtService.isTokenValid(token, user)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
