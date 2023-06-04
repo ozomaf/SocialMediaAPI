@@ -26,8 +26,9 @@ public class JwtUtils {
             return Jwts
                     .builder()
                     .setSubject(user.getUsername())
+                    .claim("userId", user.getId())
                     .setIssuedAt(new Date())
-                    .setExpiration(new Date(jwtExpiration))
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                     .signWith(generateSigningKey())
                     .compact();
         } catch (InvalidKeyException e) {
@@ -47,12 +48,12 @@ public class JwtUtils {
             log.error("JWT has expired");
             return false;
         }
-        Long id = claims.get("id", Long.class);
+        Long id = claims.get("userId", Long.class);
         if (id == null || !id.equals(user.getId())) {
-            log.error("Invalid user id");
+            log.error("Invalid user ID");
             return false;
         }
-        String username = claims.get("username", String.class);
+        String username = claims.getSubject();
         if (username == null || !username.equals(user.getUsername())) {
             log.error("Invalid username");
             return false;

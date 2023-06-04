@@ -3,15 +3,20 @@ package com.azatkhaliullin.socialmediaapi.dto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Lob;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
 public class Image {
 
     @Id
     @GeneratedValue
     private Long id;
-    @NotNull
-    private String filename;
+    @Lob
+    private byte[] data;
 
+    public Image(byte[] data) {
+        this.data = data;
+    }
 }

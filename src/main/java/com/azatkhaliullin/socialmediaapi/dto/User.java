@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,19 +36,22 @@ public class User implements UserDetails {
     @GeneratedValue
     private Long id;
 
+    @NotNull
     @NotBlank
     @Column(unique = true)
     private String username;
 
     @Email
+    @NotNull
     @NotBlank
     @Column(unique = true)
     private String email;
 
+    @NotNull
     @NotBlank
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
     private List<Post> posts;
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<User> friends;
