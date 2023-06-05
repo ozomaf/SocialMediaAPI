@@ -1,25 +1,30 @@
 package com.azatkhaliullin.socialmediaapi.service;
 
-import com.azatkhaliullin.socialmediaapi.Utils;
+import com.azatkhaliullin.socialmediaapi.Exception.InvalidPostOwnershipException;
 import com.azatkhaliullin.socialmediaapi.dto.Post;
 import com.azatkhaliullin.socialmediaapi.dto.PostRequest;
+import com.azatkhaliullin.socialmediaapi.dto.PostResponse;
 import com.azatkhaliullin.socialmediaapi.dto.User;
 import com.azatkhaliullin.socialmediaapi.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @AllArgsConstructor
 public class PostService {
 
     private final PostRepository postRepo;
+    private final UserService userService;
+    private final ModelMapper modelMapper;
 
-    public Long createPost(PostRequest request) {
-        User user = Utils.getCurrentAuthUser();
+    public PostResponse createPost(PostRequest request) {
+        User user = userService.getCurrentAuthUser();
         Post post = Post.builder()
                 .title(request.getTitle())
                 .text(request.getText())
@@ -27,37 +32,57 @@ public class PostService {
                 .author(user)
                 .createdAt(LocalDateTime.now())
                 .build();
-        return postRepo.save(post).getId();
+        Post save = postRepo.save(post);
+        return modelMapper.map(save, PostResponse.class);
     }
 
     public void deletePost(Long postId) {
-        getPost(postId);
-        postRepo.deleteById(postId);
+        if (checkOwner(getPost(postId))) {
+            getPost(postId);
+            postRepo.deleteById(postId);
+        }
     }
 
-    public ResponseEntity<String> updatePost(Long postId,
-                                             PostRequest request) {
-        User currentAuthUser = Utils.getCurrentAuthUser();
+    public PostResponse updatePost(Long postId,
+                                   PostRequest request) {
         Post post = getPost(postId);
-        if (!currentAuthUser.equals(post.getAuthor())) {
-            return ResponseEntity.badRequest().body("This post does not belong to this user.");
+        if (checkOwner(post)) {
+            if (request.getTitle() != null) {
+                post.setTitle(request.getTitle());
+            }
+            if (request.getText() != null) {
+                post.setText(request.getText());
+            }
+            if (request.getImages() != null) {
+                post.setImages(request.getImages());
+            }
         }
-        if (request.getTitle() != null) {
-            post.setTitle(request.getTitle());
-        }
-        if (request.getText() != null) {
-            post.setText(request.getText());
-        }
-        if (request.getImages() != null) {
-            post.setImages(request.getImages());
-        }
-        postRepo.save(post);
-        return ResponseEntity.ok("Post successfully updated");
+        Post save = postRepo.save(post);
+        return modelMapper.map(save, PostResponse.class);
     }
 
     private Post getPost(Long postId) {
         return postRepo.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+    }
+
+    public List<PostResponse> getAllPostsByUser(String username) {
+        User user = userService.getUser(username);
+        List<Post> posts = postRepo.getAllByAuthor(user);
+        List<PostResponse> postResponses = new ArrayList<>();
+        for (Post post : posts) {
+            postResponses.add(modelMapper.map(post, PostResponse.class));
+        }
+        return postResponses;
+    }
+
+    private boolean checkOwner(Post post) {
+        User currentAuthUser = userService.getCurrentAuthUser();
+        if (currentAuthUser.equals(post.getAuthor())) {
+            return true;
+        } else {
+            throw new InvalidPostOwnershipException();
+        }
     }
 
 }

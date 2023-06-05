@@ -9,14 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -36,22 +34,11 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Long id;
-
-    @NotNull
-    @NotBlank
     @Column(unique = true)
     private String username;
-
-    @Email
-    @NotNull
-    @NotBlank
     @Column(unique = true)
     private String email;
-
-    @NotNull
-    @NotBlank
     private String password;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
     private List<Post> posts;
     @ManyToMany(cascade = CascadeType.ALL)
@@ -60,10 +47,11 @@ public class User implements UserDetails {
     private Set<User> subscribers;
     @ManyToMany(cascade = CascadeType.ALL)
     private Set<User> subscriptions;
+    private UserRole role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -97,6 +85,10 @@ public class User implements UserDetails {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public enum UserRole {
+        USER
     }
 
 }

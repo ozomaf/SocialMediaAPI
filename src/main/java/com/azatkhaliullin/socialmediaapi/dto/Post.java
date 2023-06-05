@@ -25,18 +25,12 @@ public class Post {
     @Id
     @GeneratedValue
     private Long id;
-
     private String title;
-
     private String text;
-
     @OneToMany(cascade = CascadeType.ALL)
     private List<Image> images;
-
-    @NotNull
     @ManyToOne
     private User author;
-
     @NotNull
     private LocalDateTime createdAt;
 

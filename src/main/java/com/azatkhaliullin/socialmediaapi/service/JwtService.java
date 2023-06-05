@@ -1,5 +1,6 @@
 package com.azatkhaliullin.socialmediaapi.service;
 
+import com.azatkhaliullin.socialmediaapi.Exception.TokenGenerationException;
 import com.azatkhaliullin.socialmediaapi.dto.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -32,8 +33,7 @@ public class JwtService {
                     .signWith(generateSigningKey())
                     .compact();
         } catch (InvalidKeyException e) {
-            log.error("Token generation error");
-            throw new RuntimeException(e);
+            throw new TokenGenerationException();
         }
     }
 
