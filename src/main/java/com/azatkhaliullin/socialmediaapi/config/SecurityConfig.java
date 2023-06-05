@@ -3,6 +3,7 @@ package com.azatkhaliullin.socialmediaapi.config;
 import com.azatkhaliullin.socialmediaapi.repository.UserRepository;
 import com.azatkhaliullin.socialmediaapi.security.AuthEntryPoint;
 import com.azatkhaliullin.socialmediaapi.security.AuthTokenFilter;
+import com.azatkhaliullin.socialmediaapi.service.AuthService;
 import com.azatkhaliullin.socialmediaapi.service.JwtService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +28,14 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthService authService(UserRepository userRepo,
+                                   JwtService jwtService,
+                                   PasswordEncoder encoder,
+                                   AuthenticationManager authManager) {
+        return new AuthService(userRepo, jwtService, encoder, authManager);
     }
 
     @Bean

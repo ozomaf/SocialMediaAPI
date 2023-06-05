@@ -3,7 +3,7 @@ package com.azatkhaliullin.socialmediaapi.dto;
 import lombok.Data;
 
 @Data
-public class AuthRequest {
+public class AuthData {
 
     private String username;
     private String email;

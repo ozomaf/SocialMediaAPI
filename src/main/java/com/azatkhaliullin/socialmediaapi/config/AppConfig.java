@@ -3,6 +3,7 @@ package com.azatkhaliullin.socialmediaapi.config;
 import com.azatkhaliullin.socialmediaapi.Exception.PostValidationException;
 import com.azatkhaliullin.socialmediaapi.dto.Post;
 import com.azatkhaliullin.socialmediaapi.repository.PostRepository;
+import com.azatkhaliullin.socialmediaapi.repository.RelationshipRepository;
 import com.azatkhaliullin.socialmediaapi.repository.UserRepository;
 import com.azatkhaliullin.socialmediaapi.service.JwtService;
 import com.azatkhaliullin.socialmediaapi.service.PostService;
@@ -12,17 +13,10 @@ import org.aspectj.lang.annotation.Before;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Aspect
 @Configuration
 public class AppConfig {
-
-    @Bean
-    public JwtService jwtService() {
-        return new JwtService();
-    }
 
     @Bean
     public ModelMapper modelMapper() {
@@ -30,18 +24,20 @@ public class AppConfig {
     }
 
     @Bean
-    public PostService postService(PostRepository postRepo,
-                                   UserService userService,
-                                   ModelMapper modelMapper) {
-        return new PostService(postRepo, userService, modelMapper);
+    public JwtService jwtService() {
+        return new JwtService();
+    }
+
+    @Bean
+    public PostService postService(UserService userService,
+                                   PostRepository postRepo) {
+        return new PostService(userService, postRepo);
     }
 
     @Bean
     public UserService userService(UserRepository userRepo,
-                                   JwtService jwtService,
-                                   PasswordEncoder encoder,
-                                   AuthenticationManager authManager) {
-        return new UserService(userRepo, jwtService, encoder, authManager);
+                                   RelationshipRepository relationshipRepo) {
+        return new UserService(userRepo, relationshipRepo);
     }
 
     @Before("execution(* com.azatkhaliullin.socialmediaapi.repository.PostRepository.save(..)) && args(entity)")

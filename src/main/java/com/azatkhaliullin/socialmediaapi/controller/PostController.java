@@ -1,9 +1,14 @@
 package com.azatkhaliullin.socialmediaapi.controller;
 
-import com.azatkhaliullin.socialmediaapi.dto.PostRequest;
-import com.azatkhaliullin.socialmediaapi.dto.PostResponse;
+import com.azatkhaliullin.socialmediaapi.dto.Post;
+import com.azatkhaliullin.socialmediaapi.dto.PostData;
+import com.azatkhaliullin.socialmediaapi.dto.User;
+import com.azatkhaliullin.socialmediaapi.service.AuthService;
 import com.azatkhaliullin.socialmediaapi.service.PostService;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -24,27 +30,49 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final AuthService authService;
+    private final ModelMapper modelMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PostResponse create(@RequestBody PostRequest request) {
-        return postService.createPost(request);
+    public PostData create(@RequestBody PostData request) {
+        Post post = modelMapper.map(request, Post.class);
+        User user = authService.getCurrentAuthUser();
+        Post createdPost = postService.createPost(post, user);
+        return modelMapper.map(createdPost, PostData.class);
     }
 
     @DeleteMapping("/{postId}")
     public void delete(@PathVariable Long postId) {
-        postService.deletePost(postId);
+        User user = authService.getCurrentAuthUser();
+        postService.deletePost(postId, user);
     }
 
-    @PutMapping("/{postId}")
-    public PostResponse update(@PathVariable Long postId,
-                               @RequestBody PostRequest request) {
-        return postService.updatePost(postId, request);
+    @PutMapping
+    public PostData update(@RequestBody PostData request) {
+        Post post = modelMapper.map(request, Post.class);
+        User user = authService.getCurrentAuthUser();
+        Post updatedPost = postService.updatePost(post, user);
+        return modelMapper.map(updatedPost, PostData.class);
     }
 
-    @GetMapping()
-    public List<PostResponse> getAllPostsByUser(@RequestParam String username) {
-        return postService.getAllPostsByUser(username);
+    @GetMapping("/{userId}")
+    public List<PostData> getAllPostsByUser(@PathVariable Long userId) {
+        List<Post> allPostsByUser = postService.getAllPostsByUser(userId);
+        return allPostsByUser.stream()
+                .map(post -> modelMapper.map(post, PostData.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/subscriptions")
+    public List<PostData> getAllPostsOfSubscriptions(@RequestParam Integer pageNumber,
+                                                     @RequestParam Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        User user = authService.getCurrentAuthUser();
+        List<Post> allPostsOfSubscriptions = postService.getAllPostsOfSubscriptions(user, pageable);
+        return allPostsOfSubscriptions.stream()
+                .map(post -> modelMapper.map(post, PostData.class))
+                .collect(Collectors.toList());
     }
 
 }

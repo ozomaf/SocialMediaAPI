@@ -16,8 +16,4 @@ public class Image {
     @Lob
     private byte[] data;
 
-    public Image(byte[] data) {
-        this.data = data;
-    }
-
 }

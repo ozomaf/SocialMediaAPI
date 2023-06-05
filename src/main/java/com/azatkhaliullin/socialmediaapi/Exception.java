@@ -44,4 +44,10 @@ public class Exception {
         }
     }
 
+    public static class RelationshipExistsException extends RuntimeException {
+        public RelationshipExistsException() {
+            super("Relationship already exists");
+        }
+    }
+
 }

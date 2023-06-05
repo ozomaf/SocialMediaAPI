@@ -1,12 +1,11 @@
 package com.azatkhaliullin.socialmediaapi.dto;
 
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -39,14 +37,8 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String email;
     private String password;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author", fetch = FetchType.EAGER)
     private List<Post> posts;
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<User> friends;
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<User> subscribers;
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<User> subscriptions;
     private UserRole role;
 
     @Override

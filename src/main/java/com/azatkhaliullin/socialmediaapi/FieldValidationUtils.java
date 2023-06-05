@@ -3,19 +3,19 @@ package com.azatkhaliullin.socialmediaapi;
 import com.azatkhaliullin.socialmediaapi.Exception.EmailFormatException;
 import com.azatkhaliullin.socialmediaapi.Exception.PasswordFormatException;
 import com.azatkhaliullin.socialmediaapi.Exception.UsernameFormatException;
-import com.azatkhaliullin.socialmediaapi.dto.AuthRequest;
+import com.azatkhaliullin.socialmediaapi.dto.AuthData;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class FieldValidationUtils {
 
-    public void validateSignUpRequest(AuthRequest request) {
+    public void validateSignUpRequest(AuthData request) {
         validateUsername(request.getUsername());
         validatePassword(request.getPassword());
         validateEmail(request.getEmail());
     }
 
-    public void validateLoginRequest(AuthRequest request) {
+    public void validateLoginRequest(AuthData request) {
         validateUsername(request.getUsername());
         validatePassword(request.getPassword());
     }
@@ -26,8 +26,7 @@ public class FieldValidationUtils {
     }
 
     public void validateEmail(String email) {
-        if (email == null || email.isBlank()
-                || !email.matches("^[A-Za-z0-9_-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"))
+        if (email == null || !email.matches("^[A-Za-z0-9_-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"))
             throw new EmailFormatException();
     }
 

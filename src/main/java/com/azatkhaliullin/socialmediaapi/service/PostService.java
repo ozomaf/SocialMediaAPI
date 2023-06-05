@@ -2,85 +2,73 @@ package com.azatkhaliullin.socialmediaapi.service;
 
 import com.azatkhaliullin.socialmediaapi.Exception.InvalidPostOwnershipException;
 import com.azatkhaliullin.socialmediaapi.dto.Post;
-import com.azatkhaliullin.socialmediaapi.dto.PostRequest;
-import com.azatkhaliullin.socialmediaapi.dto.PostResponse;
 import com.azatkhaliullin.socialmediaapi.dto.User;
 import com.azatkhaliullin.socialmediaapi.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @AllArgsConstructor
 public class PostService {
 
-    private final PostRepository postRepo;
     private final UserService userService;
-    private final ModelMapper modelMapper;
+    private final PostRepository postRepo;
 
-    public PostResponse createPost(PostRequest request) {
-        User user = userService.getCurrentAuthUser();
-        Post post = Post.builder()
-                .title(request.getTitle())
-                .text(request.getText())
-                .images(request.getImages())
+    public Post createPost(Post post,
+                           User user) {
+        Post build = Post.builder()
+                .title(post.getTitle())
+                .text(post.getText())
+                .images(post.getImages())
                 .author(user)
                 .createdAt(LocalDateTime.now())
                 .build();
-        Post save = postRepo.save(post);
-        return modelMapper.map(save, PostResponse.class);
+        return postRepo.save(build);
     }
 
-    public void deletePost(Long postId) {
-        if (checkOwner(getPost(postId))) {
-            getPost(postId);
-            postRepo.deleteById(postId);
+    public void deletePost(Long postId,
+                           User user) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(EntityNotFoundException::new);
+        checkOwner(post, user);
+        postRepo.deleteById(postId);
+    }
+
+    public Post updatePost(Post post,
+                           User user) {
+        Post existingPost = postRepo.findById(post.getId())
+                .orElseThrow(EntityNotFoundException::new);
+        checkOwner(existingPost, user);
+        if (post.getTitle() != null) {
+            existingPost.setTitle(post.getTitle());
         }
-    }
-
-    public PostResponse updatePost(Long postId,
-                                   PostRequest request) {
-        Post post = getPost(postId);
-        if (checkOwner(post)) {
-            if (request.getTitle() != null) {
-                post.setTitle(request.getTitle());
-            }
-            if (request.getText() != null) {
-                post.setText(request.getText());
-            }
-            if (request.getImages() != null) {
-                post.setImages(request.getImages());
-            }
+        if (post.getText() != null) {
+            existingPost.setText(post.getText());
         }
-        Post save = postRepo.save(post);
-        return modelMapper.map(save, PostResponse.class);
-    }
-
-    private Post getPost(Long postId) {
-        return postRepo.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
-    }
-
-    public List<PostResponse> getAllPostsByUser(String username) {
-        User user = userService.getUser(username);
-        List<Post> posts = postRepo.getAllByAuthor(user);
-        List<PostResponse> postResponses = new ArrayList<>();
-        for (Post post : posts) {
-            postResponses.add(modelMapper.map(post, PostResponse.class));
+        if (post.getImages() != null) {
+            existingPost.setImages(post.getImages());
         }
-        return postResponses;
+        return postRepo.save(existingPost);
     }
 
-    private boolean checkOwner(Post post) {
-        User currentAuthUser = userService.getCurrentAuthUser();
-        if (currentAuthUser.equals(post.getAuthor())) {
-            return true;
-        } else {
+    public List<Post> getAllPostsByUser(Long userId) {
+        User user = userService.getUserById(userId);
+        return postRepo.getAllByAuthor(user);
+    }
+
+    public List<Post> getAllPostsOfSubscriptions(User user,
+                                                 Pageable pageable) {
+        return postRepo.getAllPostsOfSubscribersDesc(user, pageable);
+    }
+
+    private void checkOwner(Post post,
+                            User user) {
+        if (!user.equals(post.getAuthor())) {
             throw new InvalidPostOwnershipException();
         }
     }
