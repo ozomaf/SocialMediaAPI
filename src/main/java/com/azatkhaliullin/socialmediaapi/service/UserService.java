@@ -66,8 +66,7 @@ public class UserService {
                 && relationship.getStatus() == Status.SUBSCRIBER) {
             relationshipRepo.delete(relationship);
         } else {
-            relationshipRepo.save(Relationship.builder()
-                    .id(relationship.getId())
+            relationshipRepo.save(relationship.toBuilder()
                     .who(targetUser)
                     .toWhom(user)
                     .status(Status.SUBSCRIBER)

@@ -5,6 +5,7 @@ import com.azatkhaliullin.socialmediaapi.dto.PostData;
 import com.azatkhaliullin.socialmediaapi.dto.User;
 import com.azatkhaliullin.socialmediaapi.service.AuthService;
 import com.azatkhaliullin.socialmediaapi.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +36,7 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new post")
     public PostData create(@RequestBody PostData request) {
         Post post = modelMapper.map(request, Post.class);
         User user = authService.getCurrentAuthUser();
@@ -43,12 +45,14 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}")
+    @Operation(summary = "Delete a post by ID")
     public void delete(@PathVariable Long postId) {
         User user = authService.getCurrentAuthUser();
         postService.deletePost(postId, user);
     }
 
     @PutMapping
+    @Operation(summary = "Update a post")
     public PostData update(@RequestBody PostData request) {
         Post post = modelMapper.map(request, Post.class);
         User user = authService.getCurrentAuthUser();
@@ -57,6 +61,7 @@ public class PostController {
     }
 
     @GetMapping("/{userId}")
+    @Operation(summary = "Get all posts by user ID")
     public List<PostData> getAllPostsByUser(@PathVariable Long userId) {
         List<Post> allPostsByUser = postService.getAllPostsByUser(userId);
         return allPostsByUser.stream()
@@ -65,6 +70,7 @@ public class PostController {
     }
 
     @GetMapping("/subscriptions")
+    @Operation(summary = "Get all posts of subscriptions")
     public List<PostData> getAllPostsOfSubscriptions(@RequestParam Integer pageNumber,
                                                      @RequestParam Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);

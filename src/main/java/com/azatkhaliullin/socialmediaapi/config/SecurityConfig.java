@@ -45,8 +45,9 @@ public class SecurityConfig {
 
     @Bean
     public AuthTokenFilter authTokenFilter(JwtService jwtService,
-                                           UserDetailsService userDetailsService) {
-        return new AuthTokenFilter(jwtService, userDetailsService);
+                                           UserDetailsService userDetailsService,
+                                           ObjectMapper objectMapper) {
+        return new AuthTokenFilter(jwtService, userDetailsService, objectMapper);
     }
 
     @Bean
@@ -69,8 +70,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "api/auth/**"
-                        ).permitAll()
+                                "/swagger-ui.html/**",
+                                "/api/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling((exceptionHandling) -> exceptionHandling
                         .authenticationEntryPoint(authEntryPoint))

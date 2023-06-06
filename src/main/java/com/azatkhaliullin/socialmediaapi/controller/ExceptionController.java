@@ -8,14 +8,12 @@ import com.azatkhaliullin.socialmediaapi.Exception.PostValidationException;
 import com.azatkhaliullin.socialmediaapi.Exception.RelationshipExistsException;
 import com.azatkhaliullin.socialmediaapi.Exception.TokenGenerationException;
 import com.azatkhaliullin.socialmediaapi.Exception.UsernameFormatException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.naming.OperationNotSupportedException;
 import java.sql.SQLException;
 
 @ControllerAdvice
@@ -56,11 +54,6 @@ public class ExceptionController {
         return new ResponseEntity<>("Database error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> entityNotFoundException() {
-        return new ResponseEntity<>("Entity not found", HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(InvalidPostOwnershipException.class)
     public ResponseEntity<?> invalidPostOwnershipException() {
         return new ResponseEntity<>("This post does not belong to this user", HttpStatus.FORBIDDEN);
@@ -69,21 +62,6 @@ public class ExceptionController {
     @ExceptionHandler(RelationshipExistsException.class)
     public ResponseEntity<?> relationshipExistsException() {
         return new ResponseEntity<>("Relationship already exists", HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(OperationNotSupportedException.class)
-    public ResponseEntity<?> operationNotSupportedException() {
-        return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> illegalArgumentException() {
-        return new ResponseEntity<>("Illegal argument", HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> exception() {
-        return new ResponseEntity<>("Unexpected error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
